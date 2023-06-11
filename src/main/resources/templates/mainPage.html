@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Main Page</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Ürünleri getiren AJAX isteği
+            $.ajax({
+                type: "GET",
+                url: "/products",
+                success: function(response) {
+                    // Ürünleri listele
+                    for (var i = 0; i < response.length; i++) {
+                        var product = response[i];
+                        var productElement = `
+                            <div class="product">
+                                <h3>${product.name}</h3>
+                                <p>Price: ${product.price}</p>
+                                <p>Stock: <span id="stock-${product.id}">${product.stock}</span></p>
+                                <button class="add-to-basket-btn" data-product-id="${product.id}">Add to Basket</button>
+                            </div>
+                        `;
+                        $("#productsContainer").append(productElement);
+                    }
+                }
+            });
+
+            // Filtreleme sistemi
+            $("#filterForm").submit(function(event) {
+                event.preventDefault();
+                var selectedGender = $("#genderSelect").val();
+                // AJAX isteğiyle filtreleme yapabilirsiniz
+                $.ajax({
+                    type: "GET",
+                    url: "/products/filter",
+                    data: { gender: selectedGender },
+                    success: function(response) {
+                        // Filtrelenmiş ürünleri listele
+                        $("#productsContainer").empty();
+                        for (var i = 0; i < response.length; i++) {
+                            var product = response[i];
+                            var productElement = `
+                                <div class="product">
+                                    <h3>${product.name}</h3>
+                                    <p>Price: ${product.price}</p>
+                                    <p>Stock: <span id="stock-${product.id}">${product.stock}</span></p>
+                                    <button class="add-to-basket-btn" data-product-id="${product.id}">Add to Basket</button>
+                                </div>
+                            `;
+                            $("#productsContainer").append(productElement);
+                        }
+                    }
+                });
+            });
+
+            // Logout işlemi
+            $("#logoutBtn").click(function() {
+                $.ajax({
+                    type: "POST",
+                    url: "/logout",
+                    success: function(response) {
+                        // Logout başarılı olduğunda yönlendirme yapabilirsiniz
+                        window.location.href = "/login";
+                    }
+                });
+            });
+
+            // Hesap bilgilerini görüntüleme
+            $("#accountBtn").click(function() {
+                $.ajax({
+                    type: "GET",
+                    url: "/account",
+                    success: function(response) {
+                        // Hesap bilgilerini görüntüleme işlemleri
+                    }
+                });
+            });
+        });
+    </script>
+    <style>
+        .product {
+            border: 1px solid black;
+            padding: 10px;
+            margin-bottom: 10px;
+            width: calc(33.33% - 20px);
+            float: left;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+<h1>Welcome to the Main Page!</h1>
+<div id="productsContainer"></div>
+<form id="filterForm">
+    <select id="genderSelect">
+        <option value="MALE">Male</option>
+        <option value="FEMALE">Female</option>
+        <option value="UNISEX">Unisex</option>
+        <option value="ALL">All</option>
+    </select>
+    <button type="submit">Filter</button>
+</form>
+<button id="logoutBtn">Logout</button>
+<button id="accountBtn">Account</button>
+<!-- Sepet ve içeriği -->
+<div id="basketContainer">
+    <h2>Basket</h2>
+    <div id="basketItems"></div>
+    <p id="basketTotal"></p>
+    <button id="checkoutBtn">Checkout</button>
+</div>
+<script src="basket.js"></script>
+</body>
+</html>
